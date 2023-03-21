@@ -17,7 +17,7 @@ namespace MatchState
 
 AShooterGameMode::AShooterGameMode()
 {
-	bDelayedStart = true;	
+	bDelayedStart = true;
 }
 
 void AShooterGameMode::BeginPlay()
