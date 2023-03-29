@@ -196,7 +196,9 @@ private:
 	class UBuffComponent* Buff;
 
 public:
+	UFUNCTION(BlueprintCallable)
 	bool IsWeaponEquipped() const;
+
 	bool IsAiming() const;
 
 	UFUNCTION(BlueprintCallable)
