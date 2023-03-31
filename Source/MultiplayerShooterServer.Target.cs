@@ -7,7 +7,7 @@ public class MultiplayerShooterServerTarget : TargetRules
 {
 	public MultiplayerShooterServerTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Game;
+		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
 		ExtraModuleNames.Add("MultiplayerShooter");
