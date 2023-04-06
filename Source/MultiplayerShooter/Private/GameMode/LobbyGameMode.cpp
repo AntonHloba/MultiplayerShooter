@@ -4,6 +4,14 @@
 #include "GameMode/LobbyGameMode.h"
 #include "GameFramework/GameState.h"
 
+DEFINE_LOG_CATEGORY(LogLobbyGameMode);
+
+ALobbyGameMode::ALobbyGameMode()
+{
+	UE_LOG(LogLobbyGameMode, Warning, TEXT("LobbyGameMode created!"));
+
+}
+
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
@@ -15,7 +23,13 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		if (World)
 		{
 			bUseSeamlessTravel = true;
-			World->ServerTravel(FString("/Game/Maps/BlasterMap?listen"));
+			World->ServerTravel(FString("/Game/Maps/MyStartupMap?listen"));
 		}
 	}
+}
+
+void ALobbyGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	UE_LOG(LogLobbyGameMode, Warning, TEXT("LobbyGameMode BeginPlay!"));
 }

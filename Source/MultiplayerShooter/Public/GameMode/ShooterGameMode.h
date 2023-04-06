@@ -4,7 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSessionSettings.h"
+
 #include "ShooterGameMode.generated.h"
+
+
+DECLARE_LOG_CATEGORY_EXTERN(LogShooterGameMode, Log, All);
 
 /** Add a new custom match state in the GameMode */
 namespace MatchState
@@ -12,9 +18,6 @@ namespace MatchState
 	extern const FName Cooldown;
 }
 
-/**
- * 
- */
 UCLASS()
 class MULTIPLAYERSHOOTER_API AShooterGameMode : public AGameMode
 {
@@ -29,7 +32,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnMatchStateSet() override;
-	
+	void CreateSession();
+
 private:
 	/** The time cost for entering the map */
 	float LevelStartingTime = 0.f;
@@ -54,4 +58,10 @@ public:
 	FORCEINLINE float GetWarmupTime() const { return WarmupTime; }
 	FORCEINLINE float GetMatchTime() const { return MatchTime; }
 	FORCEINLINE float GetCooldownTime() const { return CooldownTime; }
+
+protected:
+
+	IOnlineSessionPtr OnlineSessionInterface;
+	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
+
 };

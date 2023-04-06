@@ -9,6 +9,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerController/ShooterPlayerController.h"
 #include "PlayerState/ShooterPlayerState.h"
+#include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
+
+
+DEFINE_LOG_CATEGORY(LogShooterGameMode);
 
 namespace MatchState
 {
@@ -18,12 +23,19 @@ namespace MatchState
 AShooterGameMode::AShooterGameMode()
 {
 	bDelayedStart = true;
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if (Subsystem)
+	{
+		OnlineSessionInterface = Subsystem->GetSessionInterface();
+	}
+	UE_LOG(LogShooterGameMode, Warning, TEXT("ShooterGameMode created!"));
 }
 
 void AShooterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	UE_LOG(LogShooterGameMode, Warning, TEXT("ShooterGameMode BeginPlay!"));
+	CreateSession();
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
 }
 
@@ -98,5 +110,40 @@ void AShooterGameMode::RequestRespawn(AMainCharacter* EliminatedCharacter, ACont
 	const int32 PlayerStartIndex = FMath::RandRange(0, PlayerStarts.Num() - 1);
 
 	RestartPlayerAtPlayerStart(EliminatedController, PlayerStarts[PlayerStartIndex]);
+}
+
+void AShooterGameMode::CreateSession()
+{
+	if (!OnlineSessionInterface.IsValid())
+	{
+		return;
+	}
+
+	if (OnlineSessionInterface->GetNamedSession(NAME_GameSession))
+	{
+		OnlineSessionInterface->DestroySession(NAME_GameSession);
+		UE_LOG(LogShooterGameMode, Warning, TEXT("GameSession destroyed!"));
+		return;
+	}
+
+	int32 NumPublicConnections = 2;
+	FString MatchType = TEXT("FreeForAll");
+
+	LastSessionSettings = MakeShareable(new FOnlineSessionSettings());
+	LastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
+	LastSessionSettings->NumPublicConnections = NumPublicConnections;
+	LastSessionSettings->bAllowJoinInProgress = true;
+	LastSessionSettings->bAllowJoinViaPresence = true;
+	LastSessionSettings->bShouldAdvertise = true;
+	LastSessionSettings->bUsesPresence = true;
+	LastSessionSettings->bUseLobbiesIfAvailable = true;
+	LastSessionSettings->BuildUniqueId = 1;
+
+	LastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+
+	if (OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings))
+	{
+		UE_LOG(LogShooterGameMode, Warning, TEXT("GameSession created!"));
+	}
 }
 

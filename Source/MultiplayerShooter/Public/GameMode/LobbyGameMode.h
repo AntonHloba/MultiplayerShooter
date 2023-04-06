@@ -6,14 +6,20 @@
 #include "GameFramework/GameMode.h"
 #include "LobbyGameMode.generated.h"
 
-/**
- * 
- */
+DECLARE_LOG_CATEGORY_EXTERN(LogLobbyGameMode, Log, All);
+
 UCLASS()
 class MULTIPLAYERSHOOTER_API ALobbyGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
+	ALobbyGameMode();
+
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+protected:
+
+	virtual void BeginPlay() override;
+
 };
