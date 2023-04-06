@@ -28,13 +28,11 @@ AShooterGameMode::AShooterGameMode()
 	{
 		OnlineSessionInterface = Subsystem->GetSessionInterface();
 	}
-	UE_LOG(LogShooterGameMode, Warning, TEXT("ShooterGameMode created!"));
 }
 
 void AShooterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogShooterGameMode, Warning, TEXT("ShooterGameMode BeginPlay!"));
 	CreateSession();
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
 }
@@ -122,13 +120,15 @@ void AShooterGameMode::CreateSession()
 	if (OnlineSessionInterface->GetNamedSession(NAME_GameSession))
 	{
 		OnlineSessionInterface->DestroySession(NAME_GameSession);
-		UE_LOG(LogShooterGameMode, Warning, TEXT("GameSession destroyed!"));
+		UE_LOG(LogShooterGameMode, Display, TEXT("GameSession destroyed!"));
 		return;
 	}
 
+	CreateSessionSettings();
+
 	if (OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings))
 	{
-		UE_LOG(LogShooterGameMode, Warning, TEXT("GameSession created!"));
+		UE_LOG(LogShooterGameMode, Display, TEXT("GameSession created!"));
 	}
 }
 
@@ -143,6 +143,6 @@ void AShooterGameMode::CreateSessionSettings()
 	LastSessionSettings->bUsesPresence = true;
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	LastSessionSettings->BuildUniqueId = 1;
-	LastSessionSettings->Set(FName("MatchType"), TEXT("FreeForAll"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	LastSessionSettings->Set(FName("MatchType"), FString(TEXT("FreeForAll")), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 }
 

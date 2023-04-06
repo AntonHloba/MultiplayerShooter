@@ -6,12 +6,6 @@
 
 DEFINE_LOG_CATEGORY(LogLobbyGameMode);
 
-ALobbyGameMode::ALobbyGameMode()
-{
-	UE_LOG(LogLobbyGameMode, Warning, TEXT("LobbyGameMode created!"));
-
-}
-
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
@@ -28,8 +22,3 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
-void ALobbyGameMode::BeginPlay()
-{
-	Super::BeginPlay();
-	UE_LOG(LogLobbyGameMode, Warning, TEXT("LobbyGameMode BeginPlay!"));
-}
