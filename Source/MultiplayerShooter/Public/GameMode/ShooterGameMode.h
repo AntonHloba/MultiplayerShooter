@@ -33,6 +33,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnMatchStateSet() override;
 	void CreateSession();
+	void CreateSessionSettings();
 
 private:
 	/** The time cost for entering the map */

@@ -126,24 +126,23 @@ void AShooterGameMode::CreateSession()
 		return;
 	}
 
-	int32 NumPublicConnections = 2;
-	FString MatchType = TEXT("FreeForAll");
+	if (OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings))
+	{
+		UE_LOG(LogShooterGameMode, Warning, TEXT("GameSession created!"));
+	}
+}
 
+void AShooterGameMode::CreateSessionSettings()
+{
 	LastSessionSettings = MakeShareable(new FOnlineSessionSettings());
 	LastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
-	LastSessionSettings->NumPublicConnections = NumPublicConnections;
+	LastSessionSettings->NumPublicConnections = 2;
 	LastSessionSettings->bAllowJoinInProgress = true;
 	LastSessionSettings->bAllowJoinViaPresence = true;
 	LastSessionSettings->bShouldAdvertise = true;
 	LastSessionSettings->bUsesPresence = true;
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	LastSessionSettings->BuildUniqueId = 1;
-
-	LastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-
-	if (OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings))
-	{
-		UE_LOG(LogShooterGameMode, Warning, TEXT("GameSession created!"));
-	}
+	LastSessionSettings->Set(FName("MatchType"), TEXT("FreeForAll"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 }
 
