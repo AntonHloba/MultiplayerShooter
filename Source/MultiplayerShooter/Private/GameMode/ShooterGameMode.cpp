@@ -22,6 +22,8 @@ namespace MatchState
 
 AShooterGameMode::AShooterGameMode()
 {
+	CreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &AShooterGameMode::OnCreateSessionComplete);
+
 	bDelayedStart = true;
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if (Subsystem)
@@ -124,12 +126,9 @@ void AShooterGameMode::CreateSession()
 		return;
 	}
 
+	OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
 	CreateSessionSettings();
-
-	if (OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings))
-	{
-		UE_LOG(LogShooterGameMode, Display, TEXT("GameSession created!"));
-	}
+	OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings);
 }
 
 void AShooterGameMode::CreateSessionSettings()
@@ -144,5 +143,17 @@ void AShooterGameMode::CreateSessionSettings()
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	LastSessionSettings->BuildUniqueId = 1;
 	LastSessionSettings->Set(FName("MatchType"), FString(TEXT("FreeForAll")), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+}
+
+void AShooterGameMode::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogShooterGameMode, Display, TEXT("%s game session created!"), *SessionName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogShooterGameMode, Warning, TEXT("%s game session not created!"), *SessionName.ToString());
+	}
 }
 

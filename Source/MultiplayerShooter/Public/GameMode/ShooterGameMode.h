@@ -32,8 +32,10 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnMatchStateSet() override;
+
 	void CreateSession();
 	void CreateSessionSettings();
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
 	/** The time cost for entering the map */
@@ -65,4 +67,7 @@ protected:
 	IOnlineSessionPtr OnlineSessionInterface;
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 
+private:
+
+	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
 };
