@@ -709,8 +709,9 @@ void AMainCharacter::JoinToGameSession()
 		{
 			OnlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
 
+			//Not using in steam servers, uncomment if need for another
 			//const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-			//OnlineSessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
+			//OnlineSessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, Result);
 			OnlineSessionInterface->JoinSession(0, NAME_GameSession, Result);
 		}
 	}
@@ -731,6 +732,7 @@ void AMainCharacter::OnFindSessionsComplete(bool bWasSuccessful)
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("ID: %s, USER: %s"), *Id, *User));
+			UE_LOG(LogMainCharacter, Display, TEXT("ID: %s, USER: %s"), *Id, *User);
 		}
 	}
 }
@@ -748,6 +750,7 @@ void AMainCharacter::OnJoinSessionComplete(FName SessionName, EOnJoinSessionComp
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Connect Address: %s"), *Address));
+			UE_LOG(LogMainCharacter, Display, TEXT("Connect Address: %s"), *Address);
 		}
 		APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
 		if (PlayerController)

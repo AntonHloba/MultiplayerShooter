@@ -128,6 +128,10 @@ void AShooterGameMode::CreateSession()
 
 	OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
 	CreateSessionSettings();
+
+	//Not using in steam servers and need to check localPlayer for dedicated server, uncomment if need for another
+	//const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	//OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings);
 	OnlineSessionInterface->CreateSession(0, NAME_GameSession, *LastSessionSettings);
 }
 
@@ -135,11 +139,12 @@ void AShooterGameMode::CreateSessionSettings()
 {
 	LastSessionSettings = MakeShareable(new FOnlineSessionSettings());
 	LastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
+	LastSessionSettings->bIsDedicated = true;
 	LastSessionSettings->NumPublicConnections = 2;
 	LastSessionSettings->bAllowJoinInProgress = true;
-	LastSessionSettings->bAllowJoinViaPresence = true;
 	LastSessionSettings->bShouldAdvertise = true;
-	LastSessionSettings->bUsesPresence = true;
+	LastSessionSettings->bAllowJoinViaPresence = false; //need false for dedicated
+	LastSessionSettings->bUsesPresence = false; //need false for dedicated
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 	LastSessionSettings->BuildUniqueId = 1;
 	LastSessionSettings->Set(FName("MatchType"), FString(TEXT("FreeForAll")), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
