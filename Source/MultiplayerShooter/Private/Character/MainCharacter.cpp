@@ -18,22 +18,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PlayerController/ShooterPlayerController.h"
-#include "OnlineSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogMainCharacter);
 
 AMainCharacter::AMainCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
-	if (Subsystem)
-	{
-		OnlineSessionInterface = Subsystem->GetSessionInterface();
-	}
-
-	FindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &AMainCharacter::OnFindSessionsComplete);
-	JoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &AMainCharacter::OnJoinSessionComplete);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -87,7 +77,6 @@ void AMainCharacter::BeginPlay()
 	GrenadeAttached->SetVisibility(false);
 	OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 
-	FindGameSession();
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -669,94 +658,6 @@ void AMainCharacter::SetCombatState(ECombatState State)
 	if (Combat)
 	{
 		Combat->SetCombatState(State);
-	}
-}
-
-void AMainCharacter::FindGameSession()
-{
-	if (!OnlineSessionInterface.IsValid())
-	{
-		UE_LOG(LogMainCharacter, Warning, TEXT("OnlineSessionInterface is not valid!"));
-		return;
-	}
-
-	OnlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegate);
-
-	SessionSearch = MakeShareable(new FOnlineSessionSearch());
-	SessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;;
-	SessionSearch->MaxSearchResults = 10000;
-	SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-
-	//const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-	//OnlineSessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
-	OnlineSessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-}
-
-void AMainCharacter::JoinToGameSession()
-{
-	if (!OnlineSessionInterface.IsValid())
-	{
-		UE_LOG(LogMainCharacter, Warning, TEXT("Invalid OnlineSessionInterface!"));
-		return;
-	}
-	// TODO: add class property SearchResults and move duplicate loop to FindSessions
-	for (auto Result : SessionSearch->SearchResults)
-	{
-		FString MatchType;
-		Result.Session.SessionSettings.Get(FName("MatchType"), MatchType);
-
-		if (MatchType == FString("FreeForAll"))
-		{
-			OnlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
-
-			//Not using in steam servers, uncomment if need for another
-			//const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-			//OnlineSessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, Result);
-			OnlineSessionInterface->JoinSession(0, NAME_GameSession, Result);
-		}
-	}
-}
-
-void AMainCharacter::OnFindSessionsComplete(bool bWasSuccessful)
-{
-	if (!bWasSuccessful)
-	{
-		UE_LOG(LogMainCharacter, Warning, TEXT("Sessions is not finded!"));
-		return;
-	}
-
-	for (auto Result : SessionSearch->SearchResults)
-	{
-		FString Id = Result.GetSessionIdStr();
-		FString User = Result.Session.OwningUserName;
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("ID: %s, USER: %s"), *Id, *User));
-			UE_LOG(LogMainCharacter, Display, TEXT("ID: %s, USER: %s"), *Id, *User);
-		}
-	}
-}
-
-void AMainCharacter::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
-{
-	if (!OnlineSessionInterface.IsValid())
-	{
-		UE_LOG(LogMainCharacter, Warning, TEXT("Invalid OnlineSessionInterface!"));
-		return;
-	}
-	FString Address;
-	if (OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, Address))
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Connect Address: %s"), *Address));
-			UE_LOG(LogMainCharacter, Display, TEXT("Connect Address: %s"), *Address);
-		}
-		APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
-		if (PlayerController)
-		{
-			PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-		}
 	}
 }
 

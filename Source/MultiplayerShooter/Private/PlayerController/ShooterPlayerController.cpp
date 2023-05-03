@@ -11,17 +11,41 @@
 #include "GameState/ShooterGameState.h"
 #include "HUD/AnnouncementWidget.h"
 #include "HUD/ShooterHUD.h"
+#include "HUD/ShooterMenuHUD.h"
 #include "HUD/CharacterOverlay.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "OnlineSubsystem.h"
+
+
+AShooterPlayerController::AShooterPlayerController()
+{
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if (Subsystem)
+	{
+		OnlineSessionInterface = Subsystem->GetSessionInterface();
+	}
+
+	FindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete);
+	JoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionComplete);
+
+}
 
 void AShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ShooterHUD = Cast<AShooterHUD>(GetHUD());
-	
-	CheckMatchState();
+	ShooterMenuHUD = Cast<AShooterMenuHUD>(GetHUD());
+	if (ShooterMenuHUD)
+	{
+		SetInputMode(FInputModeUIOnly());
+		bShowMouseCursor = true;
+	}
+	else
+	{
+		ShooterHUD = Cast<AShooterHUD>(GetHUD());
+		CheckMatchState();
+	}
 }
 
 void AShooterPlayerController::Tick(float DeltaTime)
@@ -353,4 +377,113 @@ void AShooterPlayerController::JoinMidGame(float LevelStarting, float Warmup, fl
 	// If the player is joining mid-game and the game is now in progress, the UI should switch to the MatchState's UI, so the
 	// player should be notified which game state is now going on.
 	OnMatchStateSet(MatchState);
+}
+
+void AShooterPlayerController::ShutOffMenu()
+{
+	if (ShooterMenuHUD)
+	{
+		ShooterMenuHUD->RemoveMenuWidgetClass();
+	}
+
+	SetInputMode(FInputModeGameOnly());
+	SetShowMouseCursor(false);
+}
+
+void AShooterPlayerController::TryFindSessionAndJoin()
+{
+	FindGameSession();
+	//TODO: add bool to return and check;
+}
+
+void AShooterPlayerController::FindGameSession()
+{
+	if (!OnlineSessionInterface.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSessionInterface is not valid!"));
+		return;
+	}
+
+	OnlineSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegate);
+
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+	SessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;;
+	SessionSearch->MaxSearchResults = 10000;
+	SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+
+	//Not using in steam servers, uncomment if need for another
+	//const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	//OnlineSessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), SessionSearch.ToSharedRef());
+	OnlineSessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+}
+
+void AShooterPlayerController::JoinToGameSession()
+{
+	if (!OnlineSessionInterface.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid OnlineSessionInterface!"));
+		return;
+	}
+	// TODO: add class property SearchResults and move duplicate loop to FindSessions
+	for (auto Result : SessionSearch->SearchResults)
+	{
+		FString MatchType;
+		Result.Session.SessionSettings.Get(FName("MatchType"), MatchType);
+
+		if (MatchType == FString("FreeForAll"))
+		{
+			OnlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
+
+			//Not using in steam servers, uncomment if need for another
+			//const ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+			//OnlineSessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, Result);
+			OnlineSessionInterface->JoinSession(0, NAME_GameSession, Result);
+		}
+	}
+}
+
+void AShooterPlayerController::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	if (!bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sessions is not finded!"));
+		return;
+	}
+
+	for (auto Result : SessionSearch->SearchResults)
+	{
+		FString Id = Result.GetSessionIdStr();
+		FString User = Result.Session.OwningUserName;
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("ID: %s, USER: %s"), *Id, *User));
+			UE_LOG(LogTemp, Display, TEXT("ID: %s, USER: %s"), *Id, *User);
+			ShutOffMenu();
+			JoinToGameSession();
+		}
+	}
+}
+
+void AShooterPlayerController::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+	if (!OnlineSessionInterface.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid OnlineSessionInterface!"));
+		return;
+	}
+	FString Address;
+	if (OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, Address))
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("Connect Address: %s"), *Address));
+			UE_LOG(LogTemp, Display, TEXT("Connect Address: %s"), *Address);
+		}
+
+		APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
+		if (PlayerController)
+		{
+			PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+		}
+	}
 }

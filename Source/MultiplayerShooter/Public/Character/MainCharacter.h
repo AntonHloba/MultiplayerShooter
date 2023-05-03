@@ -9,12 +9,12 @@
 #include "GameFramework/Character.h"
 #include "Interface/InteractWithCrosshairsInterface.h"
 #include "Weapon/Weapon.h"
-#include "Interfaces/OnlineSessionInterface.h"
 #include "MainCharacter.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogMainCharacter, Log, All);
 
 class FOnTimelineFloat;
+
 UCLASS()
 class MULTIPLAYERSHOOTER_API AMainCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
@@ -44,13 +44,6 @@ private:
 	void SwitchFireModeButtonPressed();
 	void ReloadButtonPressed();
 	void ThrowButtonPressed();
-
-	void OnFindSessionsComplete(bool bWasSuccessful);
-	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
-	UFUNCTION(BlueprintCallable)
-	void FindGameSession();
-	UFUNCTION(BlueprintCallable)
-	void JoinToGameSession();
 
 public:
 	void SetOverlappingWeapon(class AWeapon* Weapon);
@@ -232,11 +225,5 @@ public:
 	UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	UStaticMeshComponent* GetGrenadeAttached() const { return GrenadeAttached; }
 	UBuffComponent* GetBuff() const { return Buff; }
-
-private:
-	IOnlineSessionPtr OnlineSessionInterface;
-	FOnFindSessionsCompleteDelegate FindSessionsCompleteDelegate;
-	FOnJoinSessionCompleteDelegate JoinSessionCompleteDelegate;
-	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 
 };
