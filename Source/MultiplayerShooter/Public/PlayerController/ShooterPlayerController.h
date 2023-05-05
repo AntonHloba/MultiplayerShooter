@@ -4,22 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "Interfaces/OnlineSessionInterface.h"
 
 #include "ShooterPlayerController.generated.h"
 
 /**
  * 
  */
-class AShooterMenuHUD;
 class AShooterHUD;
 
 UCLASS()
 class MULTIPLAYERSHOOTER_API AShooterPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
-	AShooterPlayerController();
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,22 +49,11 @@ public:
 	/** Once the game mode's MatchState is changed, the player controller's MatchState callback is going to be executed. */
 	void OnMatchStateSet(FName State);
 
-	void TryFindSessionAndJoin();
-
-private:
-
-	void OnFindSessionsComplete(bool bWasSuccessful);
-	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
-	void FindGameSession();
-	void JoinToGameSession();
-	void ShutOffMenu();
 
 private:
 	UPROPERTY()
 	AShooterHUD* ShooterHUD;
 
-	UPROPERTY()
-	AShooterMenuHUD* ShooterMenuHUD;
 	/**
 	 *	Sync
 	 */
@@ -114,12 +99,5 @@ private:
 
 	UFUNCTION()
 	void JoinMidGame(float LevelStarting, float Warmup, float Match, float Cooldown, FName State);
-
-private:
-
-	IOnlineSessionPtr OnlineSessionInterface;
-	FOnFindSessionsCompleteDelegate FindSessionsCompleteDelegate;
-	FOnJoinSessionCompleteDelegate JoinSessionCompleteDelegate;
-	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 
 };

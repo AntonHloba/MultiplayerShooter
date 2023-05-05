@@ -2,7 +2,7 @@
 
 #include "HUD/ShooterMenuWidget.h"
 #include "Components/Button.h"
-#include "PlayerController/ShooterPlayerController.h"
+#include "PlayerController/ShooterMenuPlayerController.h"
 
 void UShooterMenuWidget::NativeOnInitialized()
 {
@@ -18,7 +18,7 @@ void UShooterMenuWidget::OnJoinButtonClicked()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		AShooterPlayerController* PlayerController = Cast<AShooterPlayerController>(World->GetFirstPlayerController());
+		AShooterMenuPlayerController* PlayerController = Cast<AShooterMenuPlayerController>(World->GetFirstPlayerController());
 		if (PlayerController)
 		{
 			PlayerController->TryFindSessionAndJoin();
