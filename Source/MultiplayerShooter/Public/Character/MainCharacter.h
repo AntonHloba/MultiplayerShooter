@@ -13,6 +13,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogMainCharacter, Log, All);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangeSignature, float, Health, float, MaxHealth);
+
 class FOnTimelineFloat;
 
 UCLASS()
@@ -142,7 +144,9 @@ private:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	void SetHUDHealth();
+	//use delegate OnHealthChenged instead this function
+	//void SetHUDHealth();
+
 	void PlayHitReactMontage() const;
 	void PlayDeathHipMontage() const;
 	void PlayDeathIronMontage() const;
@@ -225,5 +229,8 @@ public:
 	UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	UStaticMeshComponent* GetGrenadeAttached() const { return GrenadeAttached; }
 	UBuffComponent* GetBuff() const { return Buff; }
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChangeSignature OnHealthChangeDelegate;
 
 };

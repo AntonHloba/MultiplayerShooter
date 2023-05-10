@@ -3,25 +3,27 @@
 
 #include "PlayerState/ShooterPlayerState.h"
 #include "Net/UnrealNetwork.h"
-#include "PlayerController/ShooterPlayerController.h"
+//#include "PlayerController/ShooterPlayerController.h"
 
 void AShooterPlayerState::UpdateScore()
 {
 	SetScore(GetScore() + ScoreAmount);
 
-	ShooterPlayerController = ShooterPlayerController ? ShooterPlayerController : Cast<AShooterPlayerController>(GetOwningController());
-	if (!ShooterPlayerController) return;
-	
-	ShooterPlayerController->UpdatePlayerScore(GetScore());
+	//ShooterPlayerController = ShooterPlayerController ? ShooterPlayerController : Cast<AShooterPlayerController>(GetOwningController());
+	//if (!ShooterPlayerController) return;
+	//
+	//ShooterPlayerController->UpdatePlayerScore(GetScore());
+	OnScoreUpdateDelegate.Broadcast(GetScore());
 }
 
 void AShooterPlayerState::UpdateDefeats()
 {
 	Defeats += 1;
 
-	ShooterPlayerController = ShooterPlayerController ? ShooterPlayerController : Cast<AShooterPlayerController>(GetOwningController());
-	if (!ShooterPlayerController) return;
-	
-	ShooterPlayerController->UpdatePlayerDefeats(Defeats);
+	//ShooterPlayerController = ShooterPlayerController ? ShooterPlayerController : Cast<AShooterPlayerController>(GetOwningController());
+	//if (!ShooterPlayerController) return;
+	//
+	//ShooterPlayerController->UpdatePlayerDefeats(Defeats);
+	OnDefeatsUpdateDelegate.Broadcast(Defeats);
 }
 

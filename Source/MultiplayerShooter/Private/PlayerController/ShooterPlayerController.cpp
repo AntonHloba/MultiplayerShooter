@@ -50,44 +50,49 @@ void AShooterPlayerController::ReceivedPlayer()
 	if (IsLocalController()) RequestServerTimeFromClient(GetWorld()->GetTimeSeconds());
 }
 
-void AShooterPlayerController::UpdatePlayerHealth(float Health, float MaxHealth)
-{
-	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
-	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->HealthBar ||
-		!ShooterHUD->GetCharacterOverlay()->HealthText) return;
-	
-	ShooterHUD->GetCharacterOverlay()->HealthBar->SetPercent(Health / MaxHealth);
-	const FString HealthText = FString::Printf(TEXT("%d / %d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
-	ShooterHUD->GetCharacterOverlay()->HealthText->SetText(FText::FromString(HealthText));
-}
+//void AShooterPlayerController::UpdatePlayerHealth(float Health, float MaxHealth)
+//{
+//	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
+//	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->HealthBar ||
+//		!ShooterHUD->GetCharacterOverlay()->HealthText) return;
+//	
+//	ShooterHUD->GetCharacterOverlay()->HealthBar->SetPercent(Health / MaxHealth);
+//	const FString HealthText = FString::Printf(TEXT("%d / %d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
+//	ShooterHUD->GetCharacterOverlay()->HealthText->SetText(FText::FromString(HealthText));
+//}
 
-void AShooterPlayerController::UpdatePlayerScore(float Value)
-{
-	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
-	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->Score) return;
-	
-	const FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Value));
-	ShooterHUD->GetCharacterOverlay()->Score->SetText(FText::FromString(ScoreText));
-}
+//void AShooterPlayerController::UpdatePlayerScore(float Value)
+//{
+//	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
+//	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->Score) return;
+//	
+//	const FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Value));
+//	ShooterHUD->GetCharacterOverlay()->Score->SetText(FText::FromString(ScoreText));
+//}
 
-void AShooterPlayerController::UpdatePlayerDefeats(int32 Value)
-{
-	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
-	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->Defeats) return;
-	
-	const FString DefeatsText = FString::Printf(TEXT("%d"), Value);
-	ShooterHUD->GetCharacterOverlay()->Defeats->SetText(FText::FromString(DefeatsText));
-}
+//void AShooterPlayerController::UpdatePlayerDefeats(int32 Value)
+//{
+//	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
+//	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->Defeats) return;
+//	
+//	const FString DefeatsText = FString::Printf(TEXT("%d"), Value);
+//	ShooterHUD->GetCharacterOverlay()->Defeats->SetText(FText::FromString(DefeatsText));
+//}
 
 void AShooterPlayerController::DisplayDefeatedMsg()
 {
 	ShooterHUD = ShooterHUD ? ShooterHUD : Cast<AShooterHUD>(GetHUD());
-	if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->DefeatedMsg ||
-		!ShooterHUD->GetCharacterOverlay()->DefeatedMsgAnim) return;
+	//if (!ShooterHUD || !ShooterHUD->GetCharacterOverlay() || !ShooterHUD->GetCharacterOverlay()->DefeatedMsg ||
+	//	!ShooterHUD->GetCharacterOverlay()->DefeatedMsgAnim) return;
+	if (!ShooterHUD) return;
 
 	UCharacterOverlay* CharacterOverlay = ShooterHUD->GetCharacterOverlay();
-	CharacterOverlay->DefeatedMsg->SetVisibility(ESlateVisibility::Visible);
-	CharacterOverlay->PlayAnimation(CharacterOverlay->DefeatedMsgAnim);
+	if (CharacterOverlay)
+	{
+		CharacterOverlay->EnableDefeatedMessage();
+	}
+	//CharacterOverlay->DefeatedMsg->SetVisibility(ESlateVisibility::Visible);
+	//CharacterOverlay->PlayAnimation(CharacterOverlay->DefeatedMsgAnim);
 }
 
 void AShooterPlayerController::UpdateWeaponAmmo(int32 AmmoAmount)

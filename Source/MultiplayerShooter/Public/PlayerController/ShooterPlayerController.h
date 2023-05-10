@@ -25,9 +25,9 @@ protected:
 	virtual void ReceivedPlayer() override;		
 	
 public:
-	void UpdatePlayerHealth(float Health, float MaxHealth);
-	void UpdatePlayerScore(float Value);
-	void UpdatePlayerDefeats(int32 Value);
+	//void UpdatePlayerHealth(float Health, float MaxHealth);
+	//void UpdatePlayerScore(float Value);
+	//void UpdatePlayerDefeats(int32 Value);
 	/** Display the text when player is eliminated */
 	void DisplayDefeatedMsg();
 	void UpdateWeaponAmmo(int32 AmmoAmount);

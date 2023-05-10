@@ -15,24 +15,24 @@ class MULTIPLAYERSHOOTER_API UCharacterOverlay : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* HealthBar;
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* HealthText;
+	virtual bool Initialize() override;
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* Score;
+	void UpdatePlayerHealth(float Health, float MaxHealth);
+	void DisableDefeatedMessage();
+	void EnableDefeatedMessage();
+private:
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* Defeats;
+	UFUNCTION()
+	void OnCharacterHealthChenge(float Health, float MaxHealth);
+	
+	UFUNCTION()
+	void OnCharacterScoreChenge(float Score);
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* DefeatedMsg;
+	UFUNCTION()
+	void OnChareacterDefeatsChange(int32 Defeats);
 
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	class UWidgetAnimation* DefeatedMsgAnim;
-
+public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* AmmoText;
 
@@ -59,4 +59,26 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* GrenadeAmount;
+
+private:
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* HealthBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* HealthText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* ScoreAmount;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DefeatsAmount;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DefeatedMsg;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* DefeatedMsgAnim;
+
+
 };

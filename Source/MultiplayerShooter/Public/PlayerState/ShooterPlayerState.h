@@ -9,6 +9,9 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreUpdateSignature, float, Score);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDefeatsUpdateSignature, int32, Defeats);
+
 UCLASS()
 class MULTIPLAYERSHOOTER_API AShooterPlayerState : public APlayerState
 {
@@ -26,6 +29,14 @@ private:
 	UPROPERTY()
 	int32 Defeats = 0;
 
-	UPROPERTY()
-	class AShooterPlayerController* ShooterPlayerController;
+	//UPROPERTY()
+	//class AShooterPlayerController* ShooterPlayerController;
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FOnScoreUpdateSignature OnScoreUpdateDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDefeatsUpdateSignature OnDefeatsUpdateDelegate;
 };

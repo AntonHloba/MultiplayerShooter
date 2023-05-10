@@ -31,7 +31,8 @@ void AShooterHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AddAnnouncement();
+	//AddAnnouncement();
+	AddCharacterOverlay();
 }
 
 void AShooterHUD::AddCharacterOverlay()
@@ -61,24 +62,32 @@ void AShooterHUD::AddAnnouncement()
 
 void AShooterHUD::Refresh()
 {
-	if (CharacterOverlay && CharacterOverlay->DefeatedMsg)
+	if (!CharacterOverlay)
 	{
-		CharacterOverlay->DefeatedMsg->SetVisibility(ESlateVisibility::Hidden);
-		if (CharacterOverlay->IsAnimationPlaying(CharacterOverlay->DefeatedMsgAnim))
-		{
-			CharacterOverlay->StopAnimation(CharacterOverlay->DefeatedMsgAnim);
-		}
+		return ;
 	}
+
+	CharacterOverlay->DisableDefeatedMessage();
+	//if (CharacterOverlay->DefeatedMsg)
+	//{
+	//	CharacterOverlay->DefeatedMsg->SetVisibility(ESlateVisibility::Hidden);
+	//	if (CharacterOverlay->IsAnimationPlaying(CharacterOverlay->DefeatedMsgAnim))
+	//	{
+	//		CharacterOverlay->StopAnimation(CharacterOverlay->DefeatedMsgAnim);
+	//	}
+	//}
+
+	CharacterOverlay->UpdatePlayerHealth(100.f, 100.f);
 	// We need player controller and player character because the data is stored there.
-	if (AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(GetOwningPlayerController()))
-	{
-		ShooterPlayerController->UpdatePlayerHealth(100.f, 100.f);
-		const AMainCharacter* MainCharacter = Cast<AMainCharacter>(ShooterPlayerController->GetCharacter());
-		if (MainCharacter && MainCharacter->GetCombat())
-		{
-			ShooterPlayerController->UpdateGrenade(MainCharacter->GetCombat()->GetGrenadeAmount());
-		}
-	}
+	//if (AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(GetOwningPlayerController()))
+	//{
+	//	ShooterPlayerController->UpdatePlayerHealth(100.f, 100.f);
+	//	const AMainCharacter* MainCharacter = Cast<AMainCharacter>(ShooterPlayerController->GetCharacter());
+	//	if (MainCharacter && MainCharacter->GetCombat())
+	//	{
+	//		ShooterPlayerController->UpdateGrenade(MainCharacter->GetCombat()->GetGrenadeAmount());
+	//	}
+	//}
 }
 
 void AShooterHUD::DrawCrosshairs(UTexture2D* Texture, const FVector2D& Spread)

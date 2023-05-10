@@ -272,13 +272,13 @@ void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 	}
 }
 
-void AMainCharacter::SetHUDHealth()
-{
-	ShooterPlayerController = ShooterPlayerController ? ShooterPlayerController : Cast<AShooterPlayerController>(Controller);
-	if (!ShooterPlayerController) return;
-
-	ShooterPlayerController->UpdatePlayerHealth(Health, MaxHealth);
-}
+//void AMainCharacter::SetHUDHealth()
+//{
+//	ShooterPlayerController = ShooterPlayerController ? ShooterPlayerController : Cast<AShooterPlayerController>(Controller);
+//	if (!ShooterPlayerController) return;
+//
+//	ShooterPlayerController->UpdatePlayerHealth(Health, MaxHealth);
+//}
 
 void AMainCharacter::PlayHitReactMontage() const
 {
@@ -623,7 +623,8 @@ void AMainCharacter::SetHealth(const float HealthValue)
 
 void AMainCharacter::HandleHealth(const bool IsHealthUp)
 {
-	SetHUDHealth();
+	//SetHUDHealth();
+	OnHealthChangeDelegate.Broadcast(Health, MaxHealth);
 
 	if (IsHealthUp) {}
 	else
